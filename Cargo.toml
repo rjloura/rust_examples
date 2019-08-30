@@ -18,6 +18,8 @@ uuid = "0.7.4"
 crossbeam-deque = "0.7.1"
 reqwest = "0.9.20"
 failure = "0.1.5"
+crossbeam-channel = "0.3.9"
+threadpool = "1.7.1"
 
 [patch.crates-io]
 # diesel Example:
