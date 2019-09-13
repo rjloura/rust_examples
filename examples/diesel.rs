@@ -141,6 +141,48 @@ fn get_filtered_objects(conn: &SqliteConnection, objs: &Vec<String>) {
     dbg!(res);
 }
 
+fn get_objects_with_status(
+    conn: &SqliteConnection,
+    check_status: EvacuateObjectStatus,
+) -> Vec<EvacuateObjectDB> {
+    evacuateobjects
+        .filter(status.eq(check_status))
+        .load::<EvacuateObjectDB>(conn)
+        .expect("getting filtered objects")
+}
+
+// When updating records it is similar to executing a filtered query.  See
+// get_filtered_objects() and update_objects() above.  But say you only want
+// to update a subset of records based on the primary keys.  In this function
+// we take a vector of primary keys and update only those records.  You
+// should be able to do the same thing with any field, not just the PK.
+fn update_subset_of_records(
+    conn: &SqliteConnection,
+    vec_obj_ids: &Vec<String>,
+    to_status: EvacuateObjectStatus,
+) -> usize {
+    let ret = diesel::update(evacuateobjects)
+        .filter(id.eq_any(vec_obj_ids))
+        .set(status.eq(to_status))
+        .execute(conn)
+        .unwrap_or_else(|e| {
+            let msg = format!("Error updating {}", e);
+            panic!(msg);
+        });
+    ret
+}
+
+fn get_subset_of_records(conn: &SqliteConnection, objs: &Vec<String>) {
+    println!("Getting: {:?}", objs);
+    let res = evacuateobjects
+        .filter(id.eq_any(objs))
+        .load::<EvacuateObjectDB>(conn)
+        .expect("getting filtered objects");
+
+    assert_eq!(res.len(), objs.len());
+    dbg!(res);
+}
+
 fn main() {
     let mut objs = vec![];
     let conn = establish_connection();
@@ -158,4 +200,16 @@ fn main() {
     update_objects(&conn);
     get_objects(&conn);
     get_filtered_objects(&conn, &objs);
+
+    // Getting a subset of records based on multiple possible values of a field
+    let mut vec_obj_ids = vec![];
+    for i in 0..2 {
+        vec_obj_ids.push(objs[i].clone());
+    }
+    update_subset_of_records(&conn, &vec_obj_ids, EvacuateObjectStatus::Retrying);
+    println!("========");
+    get_subset_of_records(&conn, &vec_obj_ids);
+    let retry_objs = get_objects_with_status(&conn, EvacuateObjectStatus::Retrying);
+
+    assert_eq!(retry_objs.len(), 2);
 }

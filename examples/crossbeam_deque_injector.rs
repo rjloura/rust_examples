@@ -1,8 +1,8 @@
-use crossbeam_deque::{Steal, Injector};
-use std::thread;
+use crossbeam_deque::{Injector, Steal};
 use std::sync::Arc;
-use uuid::Uuid;
+use std::thread;
 use threadpool::ThreadPool;
+use uuid::Uuid;
 
 #[derive(Debug)]
 enum QueueMsg {
@@ -23,12 +23,10 @@ fn main() {
     let gen_queue = Arc::clone(&queue);
     let gen = thread::spawn(move || {
         for i in 0..100 {
-            let work = QueueMsg::Work (
-                QueueWork {
-                    id: Uuid::new_v4(),
-                    number: i,
-                }
-            );
+            let work = QueueMsg::Work(QueueWork {
+                id: Uuid::new_v4(),
+                number: i,
+            });
 
             tx.send(work).expect("sending");
         }
@@ -38,17 +36,16 @@ fn main() {
     });
 
     let broker = thread::spawn(move || {
-
         let mut pool = ThreadPool::new(10);
         loop {
             let msg = match rx.recv() {
                 Ok(m) => m,
-                Err(_) => break
+                Err(_) => break,
             };
 
             let work = match msg {
                 QueueMsg::Work(w) => w,
-                QueueMsg::Quit => break
+                QueueMsg::Quit => break,
             };
 
             if work.number == 50 {
@@ -70,11 +67,11 @@ fn main() {
                             thread::sleep(std::time::Duration::from_millis(500));
                             cont = true;
                             continue;
-                        },
+                        }
                         Steal::Empty => {
                             println!("Queue was empty");
                             cont = false;
-                        },
+                        }
                         Steal::Retry => {
                             println!("Queue was retry");
                             cont = false;
@@ -92,4 +89,3 @@ fn main() {
     gen.join().expect("gen thread");
     broker.join().expect("broker");
 }
-
