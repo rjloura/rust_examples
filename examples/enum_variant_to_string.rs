@@ -33,7 +33,6 @@ fn variants_to_strings() {
     dbg!(&sup_guy_variant);
     assert_eq!(sup_guy_variant.unwrap(), Greeting::WhatsUpGuy);
 
-
     let not_found_variant = Greeting::from_str(&"How_ya_doin");
     assert_eq!(not_found_variant.unwrap_err(), VariantNotFound);
 
