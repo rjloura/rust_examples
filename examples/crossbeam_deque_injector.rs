@@ -56,7 +56,13 @@ fn main() {
 
             gen_queue.push(work);
 
+            // Don't queue up a new worker if we are already at the max.
+            if pool.active_count() + pool.queued_count() >= pool.max_count() {
+                continue;
+            }
+
             let w_queue = Arc::clone(&queue);
+
             pool.execute(move || {
                 let mut cont = true;
 
@@ -64,24 +70,34 @@ fn main() {
                     let s = w_queue.steal();
                     match s {
                         Steal::Success(_) => {
-                            thread::sleep(std::time::Duration::from_millis(500));
+                            thread::sleep(std::time::Duration::from_millis (500));
                             cont = true;
                             continue;
                         }
                         Steal::Empty => {
-                            println!("Queue was empty");
+                            println!("Queue empty");
                             cont = false;
                         }
                         Steal::Retry => {
-                            println!("Queue was retry");
+                            println!("Queue retry");
                             cont = false;
                         }
                     }
                 }
             });
-            println!("Active Count: {}", pool.active_count());
-            println!("Max Count: {}", pool.max_count());
+
+            println!("=================");
+            // Queued Count is the number of threads that have been created
+            // but are not running on the pool.  i.e. The number of "threads"
+            // (functions) that are waiting for an available thread to run on.
             println!("Queued Count: {}", pool.queued_count());
+
+            // Active Count is the number of threads currently running on the
+            // pool.
+            println!("Active Count: {}", pool.active_count());
+
+            // Max Count is the total number of threads in the pool.
+            println!("Max Count: {}", pool.max_count());
         }
         pool.join();
     });
