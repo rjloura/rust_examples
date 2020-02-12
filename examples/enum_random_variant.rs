@@ -8,9 +8,9 @@ use rand::Rng;
 
 #[derive(Display, EnumIter, Debug)]
 enum Greeting {
-	HelloThere,
-	WhatsUpGuy,
-	Yo,
+    HelloThere,
+    WhatsUpGuy,
+    Yo,
 }
 
 // Good for testing
@@ -19,7 +19,6 @@ fn random_variant() {
     let n: usize = rng.gen::<usize>() % Greeting::iter().count();
     let random = Greeting::iter().nth(n);
     dbg!(random);
-
 }
 
 fn main() {

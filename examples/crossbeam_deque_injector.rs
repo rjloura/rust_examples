@@ -70,7 +70,7 @@ fn main() {
                     let s = w_queue.steal();
                     match s {
                         Steal::Success(_) => {
-                            thread::sleep(std::time::Duration::from_millis (500));
+                            thread::sleep(std::time::Duration::from_millis(500));
                             cont = true;
                             continue;
                         }
