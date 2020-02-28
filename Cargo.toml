@@ -17,12 +17,14 @@ diesel-derive-enum = {git = "https://github.com/adwhit/diesel-derive-enum.git", 
 uuid = "0.7.4"
 crossbeam-deque = "0.7.1"
 reqwest = "0.9.20"
-failure = "0.1.5"
 crossbeam-channel = "0.3.9"
 rand = "0.7.2"
 threadpool = "1.7.1"
 strum = "0.16.0"
 strum_macros = "0.16.0"
+signal-hook = "0.1.13"
+mustache = {git = "https://github.com/nickel-org/rust-mustache", branch = "issue-60" }
+handlebars = "3.0.1"
 
 [patch.crates-io]
 # diesel Example:

@@ -51,7 +51,8 @@ table! {
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").unwrap_or(String::from(":memory:"));
+    let database_url = env::var("DATABASE_URL")
+        .unwrap_or(String::from(":memory:"));
 
     dbg!(&database_url);
     SqliteConnection::establish(&database_url)
@@ -206,10 +207,15 @@ fn main() {
     for i in 0..2 {
         vec_obj_ids.push(objs[i].clone());
     }
-    update_subset_of_records(&conn, &vec_obj_ids, EvacuateObjectStatus::Retrying);
+    update_subset_of_records(
+        &conn,
+        &vec_obj_ids,
+        EvacuateObjectStatus::Retrying,
+    );
     println!("========");
     get_subset_of_records(&conn, &vec_obj_ids);
-    let retry_objs = get_objects_with_status(&conn, EvacuateObjectStatus::Retrying);
+    let retry_objs =
+        get_objects_with_status(&conn, EvacuateObjectStatus::Retrying);
 
     assert_eq!(retry_objs.len(), 2);
 }

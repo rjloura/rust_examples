@@ -12,22 +12,25 @@ fn main() {
     let mclient = match client_hash.entry(shard) {
         Occupied(entry) => entry.into_mut(),
         Vacant(entry) => {
-            let client =
-                match moray_client::create_client(shard, job_action.domain_name, &job_action.log) {
-                    Ok(client) => client,
-                    Err(e) => {
-                        // TODO: persistent error for EvacuateObject
-                        // in local DB
-                        error!(
-                            "MD Update Worker: failed to get moray \
-                             client for shard number {}. Cannot update \
-                             metadata for {:#?}",
-                            shard, mobj
-                        );
+            let client = match moray_client::create_client(
+                shard,
+                job_action.domain_name,
+                &job_action.log,
+            ) {
+                Ok(client) => client,
+                Err(e) => {
+                    // TODO: persistent error for EvacuateObject
+                    // in local DB
+                    error!(
+                        "MD Update Worker: failed to get moray \
+                         client for shard number {}. Cannot update \
+                         metadata for {:#?}",
+                        shard, mobj
+                    );
 
-                        continue;
-                    }
-                };
+                    continue;
+                }
+            };
             entry.insert(client)
         }
     };

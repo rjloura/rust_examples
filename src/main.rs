@@ -10,7 +10,9 @@ struct Quote {
 impl Default for Quote {
     fn default() -> Self {
         Self {
-            quote: String::from("It’s not the love you make. It’s the love you give."),
+            quote: String::from(
+                "It’s not the love you make. It’s the love you give.",
+            ),
             author: String::from("Nikola Tesla"),
         }
     }
@@ -37,7 +39,8 @@ impl Default for Response {
 }
 
 fn main() {
-    let mut res = reqwest::get("http://quotes.rest/qod.json").expect("GET error");
+    let mut res =
+        reqwest::get("http://quotes.rest/qod.json").expect("GET error");
     let quote = res.json::<Response>().unwrap_or_default();
 
     let quote = match quote.contents.quotes.first() {
